@@ -8,6 +8,10 @@ int main() {
 
 	while (1) {
 		do {
+			if (isPlayerFree(&gameBoard)) printf("player free\n");
+			else for (int i = 0; i < 9; i++) {
+				printf("%d ", gameBoard.legalMoves[i]);
+			}printf("\n");
 			inputMove(&gameBoard);
 		} while (!isMoveLegal(&gameBoard, gameBoard.lastMovePlayed, gameBoard.legalMoves));
 

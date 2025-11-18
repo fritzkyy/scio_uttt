@@ -31,7 +31,8 @@ bool isPlayerFree(Board* board);
 void determineLegalMoves(Board* board);
 void inputMove(Board* board);
 void makeMove(Board* board, int move);
-//inline int moveToIndex(int move);
+inline int moveToIndex(int move);
+inline int indexToMove(int index);
 bool isMoveLegal(Board* board, int move, int legalMoves[]);
 int gridValue(Board* board, int grid);
 
@@ -62,7 +63,7 @@ void determineLegalMoves(Board* board) {
 	int i = 0;
 
 	for (int c = 0; c < 9; c++) {
-		if (board->cells[board->lastMovePlayed / 10 - 1 + c] == 0) board->legalMoves[i] = c;
+		if (board->cells[board->lastMovePlayed / 10 * 9 - 9 + c] == 0) board->legalMoves[i] = board->lastMovePlayed / 10 * 10 + c;
 		i++;
 	}
 }
@@ -74,20 +75,25 @@ void inputMove(Board* board) {
 	} while (atoi(input) > 99 || atoi(input) < 11);
 
 	board->lastMovePlayed = atoi(input);
+	determineLegalMoves(board);
 }
 
 void makeMove(Board* board, int move) {
 	if (!isMoveLegal(board, move, board->legalMoves)) return;
-	board->cells[move / 10 * 9 + move % 10 - 10] = turn % 2 == 0 ? 1 : -1;
+	board->cells[moveToIndex(move)] = turn % 2 == 0 ? 1 : -1;
 	turn++;
 }
 
-/*inline int moveToIndex(int move) {
+int moveToIndex(int move) {
 	return move / 10 * 9 + move % 10 - 10;
-}*/
+}
+
+int indexToMove(int index) {
+	return index + 10 ;
+}
 
 bool isMoveLegal(Board* board, int move, int legalMoves[]) {
-	if (turn == 0 || isPlayerFree(board) && board->cells[move / 10 * 9 + move % 10 - 10] == 0) return true;
+	if (turn == 0 || isPlayerFree(board) && board->cells[moveToIndex(move)] == 0) return true;
 	int k = 0;
 	for (int i = 0; i < 9; i++) {
 		if (legalMoves[i] == 0) break;
