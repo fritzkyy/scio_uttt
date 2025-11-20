@@ -6,9 +6,9 @@
 
 typedef struct Board {
 	int cells[81]; //0 empty, 1 full, 2 grid won, + for x and - for o
-	int completedCells;
-	int lastMovePlayed;
+	int movesPlayed[81];
 	int legalMoves[9];
+	int lastMovePlayed;
 } Board;
 
 const int winConditions[8][3] = {
@@ -63,8 +63,10 @@ void determineLegalMoves(Board* board) {
 	int i = 0;
 
 	for (int c = 0; c < 9; c++) {
-		if (board->cells[board->lastMovePlayed / 10 * 9 - 9 + c] == 0) board->legalMoves[i] = board->lastMovePlayed / 10 * 10 + c;
-		i++;
+		if (board->cells[moveToIndex(board->lastMovePlayed % 10 * 10 + 1) + c] == 0) {
+			board->legalMoves[i] = board->lastMovePlayed % 10 * 10 + c + 1;
+			i++;
+		}
 	}
 }
 
@@ -72,15 +74,16 @@ void inputMove(Board* board) {
 	char input[3];
 	do {
 		fgets(input, 3, stdin);
-	} while (atoi(input) > 99 || atoi(input) < 11);
+		board->lastMovePlayed = atoi(input);
+	} while (board->lastMovePlayed > 99 || board->lastMovePlayed < 11);
 
-	board->lastMovePlayed = atoi(input);
 	determineLegalMoves(board);
 }
 
 void makeMove(Board* board, int move) {
 	if (!isMoveLegal(board, move, board->legalMoves)) return;
 	board->cells[moveToIndex(move)] = turn % 2 == 0 ? 1 : -1;
+	board->movesPlayed[turn] = board->lastMovePlayed;
 	turn++;
 }
 
@@ -89,20 +92,18 @@ int moveToIndex(int move) {
 }
 
 int indexToMove(int index) {
-	return index + 10 ;
+	return (index / 9 + 1) * 10 + index % 9;
 }
 
 bool isMoveLegal(Board* board, int move, int legalMoves[]) {
 	if (turn == 0 || isPlayerFree(board) && board->cells[moveToIndex(move)] == 0) return true;
-	int k = 0;
 	for (int i = 0; i < 9; i++) {
 		if (legalMoves[i] == 0) break;
 		if (legalMoves[i] == move) {
-			k = 1;
+			return true;
 			break;
 		}
 	}
-	return k == 1;
 }
 
 int gridValue(Board* board, int grid) {
