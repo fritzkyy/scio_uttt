@@ -28,11 +28,12 @@ int turn;
 
 void drawBoard(Board* board);
 bool isPlayerFree(Board* board);
+bool isCellFree(Board* board, int index);
 void determineLegalMoves(Board* board);
 void inputMove(Board* board);
 void makeMove(Board* board, int move);
-inline int moveToIndex(int move);
-inline int indexToMove(int index);
+inline int cellToIndex(int move);
+inline int indexToCell(int index);
 bool isMoveLegal(Board* board, int move, int legalMoves[]);
 int gridValue(Board* board, int grid);
 
@@ -55,7 +56,11 @@ void drawBoard(Board* board) {
 }
 
 bool isPlayerFree(Board* board) {
-	return abs(board->cells[board->lastMovePlayed / 10 - 1]) == 2 || turn == 0;
+	return gridValue(board, board->lastMovePlayed / 10) != 0 || turn == 0;
+}
+
+bool isCellFree(Board* board, int cell) {
+	return board->cells[cellToIndex(cell)] == 0;
 }
 
 void determineLegalMoves(Board* board) {
@@ -63,8 +68,9 @@ void determineLegalMoves(Board* board) {
 	int i = 0;
 
 	for (int c = 0; c < 9; c++) {
-		if (board->cells[moveToIndex(board->lastMovePlayed % 10 * 10 + 1) + c] == 0) {
+		if (board->cells[cellToIndex(board->lastMovePlayed % 10 * 10 + 1) + c] == 0) {
 			board->legalMoves[i] = board->lastMovePlayed % 10 * 10 + c + 1;
+			printf("added %d to %d\n", board->lastMovePlayed % 10 * 10 + c + 1, board->legalMoves[i]);
 			i++;
 		}
 	}
@@ -80,29 +86,30 @@ void inputMove(Board* board) {
 
 void makeMove(Board* board, int move) {
 	if (!isMoveLegal(board, move, board->legalMoves)) return;
-	board->cells[moveToIndex(move)] = turn % 2 == 0 ? 1 : -1;
+	board->cells[cellToIndex(move)] = turn % 2 == 0 ? 1 : -1;
 	board->movesPlayed[turn] = board->lastMovePlayed;
- determineLegalMoves(board);
+	determineLegalMoves(board);
 	turn++;
 }
 
-int moveToIndex(int move) {
+int cellToIndex(int move) {
 	return move / 10 * 9 + move % 10 - 10;
 }
 
-int indexToMove(int index) {
+int indexToCell(int index) {
 	return (index / 9 + 1) * 10 + index % 9;
 }
 
 bool isMoveLegal(Board* board, int move, int legalMoves[]) {
-	if (turn == 0 || isPlayerFree(board) && board->cells[moveToIndex(move)] == 0) return true;
+	if (turn == 0 || isPlayerFree(board) && isCellFree(board, cellToIndex(board->lastMovePlayed))) return true;
+	int k = 0;
 	for (int i = 0; i < 9; i++) {
-		if (legalMoves[i] == 0) break;
 		if (legalMoves[i] == move) {
-			return true;
+			k = 1;
 			break;
 		}
 	}
+	return k == 1;
 }
 
 int gridValue(Board* board, int grid) {
