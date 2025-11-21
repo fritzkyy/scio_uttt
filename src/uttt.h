@@ -24,7 +24,7 @@ const int winConditions[8][3] = {
 
 int turn;
 
-//char positionStringChars[] = {'0', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '\0'};
+//char positionStringChars[27] = {'0', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
 
 void drawBoard(Board* board);
 bool isPlayerFree(Board* board);
@@ -76,14 +76,13 @@ void inputMove(Board* board) {
 		fgets(input, 3, stdin);
 		board->lastMovePlayed = atoi(input);
 	} while (board->lastMovePlayed > 99 || board->lastMovePlayed < 11);
-
-	determineLegalMoves(board);
 }
 
 void makeMove(Board* board, int move) {
 	if (!isMoveLegal(board, move, board->legalMoves)) return;
 	board->cells[moveToIndex(move)] = turn % 2 == 0 ? 1 : -1;
 	board->movesPlayed[turn] = board->lastMovePlayed;
+ determineLegalMoves(board);
 	turn++;
 }
 
