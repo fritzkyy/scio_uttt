@@ -8,7 +8,7 @@ int main() {
 	turn = 0;
 
 	while (1) {
-		/*printf("turn %d\n", turn);
+		printf("eval %d\n", boardEval(&gameBoard));/*printf("turn %d\n", turn);
 		{
 			int i = 0;
 			printf("moves played: ");
@@ -26,17 +26,15 @@ int main() {
 			}
 		}
 		printf("\n");*/
-		if (turn % 2 == 0) {
-			inputMove(&gameBoard);
-			//printf("last move played is %d\n", gameBoard.lastMovePlayed);
-			if (!isMoveLegal(&gameBoard, gameBoard.lastMovePlayed, gameBoard.legalMoves)) {
-				printf("illegal\n");
-				gameBoard.lastMovePlayed = gameBoard.movesPlayed[turn - 1];
-			}
 
-			makeMove(&gameBoard, gameBoard.lastMovePlayed);
-		} else makeMove(&gameBoard, bestMove(&gameBoard));
+		inputMove(&gameBoard);
+		//printf("last move played is %d\n", gameBoard.lastMovePlayed);
+		if (!isMoveLegal(&gameBoard, gameBoard.lastMovePlayed)) {
+			printf("illegal\n");
+			gameBoard.lastMovePlayed = gameBoard.movesPlayed[turn - 1];
+		}
 
+		makeMove(&gameBoard, gameBoard.lastMovePlayed);
 		drawBoard(&gameBoard);
 	}
 
