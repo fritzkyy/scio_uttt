@@ -3,12 +3,14 @@
 #include "scio.h"
 
 int main() {
-    Board gameBoard = {{0}, {0}, {0}, 0};
+    Board gameBoard = {{0}, {0}, {0}, 0, true};
 
 	turn = 0;
 
 	while (1) {
-		printf("eval %d\n", boardEval(&gameBoard));/*printf("turn %d\n", turn);
+		/*printf("best move %d\n", bestMove(&gameBoard, 10, turn % 2 == 0));
+		printf("eval %d\n", boardEval(&gameBoard));*/
+		/*printf("turn %d\n", turn);
 		{
 			int i = 0;
 			printf("moves played: ");
@@ -17,7 +19,7 @@ int main() {
 				i++;
 			}
 		}
-		printf("\n");
+		printf("\n");*/
 		if (isPlayerFree(&gameBoard)) printf("player free\n");
 		else {
 			printf("legal moves: ");
@@ -25,7 +27,7 @@ int main() {
 				printf("%d ", gameBoard.legalMoves[i]);
 			}
 		}
-		printf("\n");*/
+		printf("\n");
 
 		inputMove(&gameBoard);
 		//printf("last move played is %d\n", gameBoard.lastMovePlayed);
@@ -34,7 +36,7 @@ int main() {
 			gameBoard.lastMovePlayed = gameBoard.movesPlayed[turn - 1];
 		}
 
-		makeMove(&gameBoard, gameBoard.lastMovePlayed);
+		makeMove(&gameBoard, gameBoard.lastMovePlayed, gameBoard.XToPlay ? 1 : -1, false);
 		drawBoard(&gameBoard);
 	}
 
