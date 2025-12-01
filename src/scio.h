@@ -20,7 +20,7 @@ int boardEval(Board* board) {
     int cellEval = 0, gridEval = 0;
 
     for (int i = 0; i < 9; i++) {
-		int g = gridValue(board, i + 1);
+		int g = board->gridValues[i + 1];
 		if (g == 0) {
 			for (int j = 0; j < 9; j++) {
 				int c = board->cells[i * 9 + j];
@@ -41,7 +41,7 @@ int boardEval(Board* board) {
 }
 
 int bestMove(Board* board, int depth, bool isXPlayer) {
-	int bestEval = isXPlayer ? -10000 : 10000;
+	/*int bestEval = isXPlayer ? -10000 : 10000;
 	int moveToPlay = board->legalMoves[1];
 
     for (int i = 0; i < 81; i++) {
@@ -57,11 +57,11 @@ int bestMove(Board* board, int depth, bool isXPlayer) {
 		}
 	}
 	printf("returning %d\n", moveToPlay);
-	return moveToPlay;
+	return moveToPlay;*/return 0;
 }
 
 int minimax(Board* board, int depth, bool isXPlayer) {
-	printf("legal moves ");
+	/*printf("legal moves ");
 	for (int i = 0; i < 81; i++) {
 		if (board->legalMoves[i] == 0) continue;
 		printf("%d ", board->legalMoves[i]);
@@ -93,7 +93,7 @@ int minimax(Board* board, int depth, bool isXPlayer) {
 		}
 		printf("returning eval %d\n", minEval);
 		return minEval;
-	}
+	}*/return 0;
 }
 
 int max(int a, int b) {
