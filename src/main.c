@@ -8,13 +8,11 @@ int main() {
 	do {
 		printf("turn %d ", board->turn);
 
-		if (isPlayerFree(board, board->movesPlayed[board->turn])) printf("player free\n");
+		if (board->isPlayerFree) printf("player free ");
 		else {
 			printf("legal moves: ");
-			for (int i = 0; i < 81; i++) {
-				if (board->legalMoves[i] == 0) break;
-				printf("%d ", board->legalMoves[i]);
-			}
+			int i = 0;
+			while (board->legalMoves[i] != 0 && i < 9) printf("%d ", board->legalMoves[i++]);
 		}
 
 		char input[64];
