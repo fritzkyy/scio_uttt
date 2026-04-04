@@ -7,6 +7,7 @@ typedef struct {
 	int legalMoves[9];
 	int lastMovePlayed;
 	int turn;
+	char position[32];
 	bool xToPlay;
 	bool isPlayerFree;
 } Board;

@@ -4,6 +4,17 @@
 #include <stdlib.h>
 #include <string.h>
 
+const int winConditions[8][3] = {
+	{0, 1, 2},
+	{3, 4, 5},
+	{6, 7, 8},
+	{0, 3, 6},
+	{1, 4, 7},
+	{2, 5, 8},
+	{0, 4, 8},
+	{2, 4, 6}
+};
+
 Board* createBoard() {
 	Board* board = malloc(sizeof(Board));
 	if (board == NULL) return NULL;
@@ -65,7 +76,13 @@ int parseMove(char str[]) {
 }
 
 int evaluateGrid(Board* board, int gridStartIndex) {
-	return 0;
+	for (int i = 0; i < 8; i++) {
+		if (board->cells[gridStartIndex + winConditions[i][0]] == 0) continue;
+		if (board->cells[gridStartIndex + winConditions[i][0]] == board->cells[gridStartIndex + winConditions[i][1]] &&
+			board->cells[gridStartIndex + winConditions[i][1]] == board->cells[gridStartIndex + winConditions[i][2]]) {
+				return board->cells[gridStartIndex + winConditions[i][0]];
+		}
+	}
 }
 
 int evaluateBoard(Board* board) {
