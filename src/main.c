@@ -21,6 +21,8 @@ int main() {
 		printf("playing move %d\n", moveToPlay);
 		playMove(board, moveToPlay);
 		drawBoard(board);
+		strcpy(board->upn, positionString(board));
+		printf("%s\n", board->upn);
 	} while (1);
 
 	return 0;

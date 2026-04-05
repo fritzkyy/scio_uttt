@@ -1,13 +1,15 @@
 #pragma once
 #include <stdbool.h>
 
+#define UPNLENGTH 28
+
 typedef struct {
 	int cells[81];
 	int movesPlayed[81];
 	int legalMoves[9];
 	int lastMovePlayed;
 	int turn;
-	char position[32];
+	char upn[UPNLENGTH];
 	bool xToPlay;
 	bool isPlayerFree;
 } Board;
@@ -24,6 +26,9 @@ int targetGridIndex(int lastMovePlayed);
 int parseMove(char str[]);
 int evaluateGrid(Board* board, int gridStartIndex);
 int evaluateBoard(Board* board);
+
+char rowValue(Board* board, int grid, int row);
+char* positionString(Board* board);
 
 void drawBoard(Board* board);
 void setLegalMoves(Board* board);

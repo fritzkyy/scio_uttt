@@ -1,4 +1,5 @@
 #include "uttt.h"
+#include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,6 +16,8 @@ const int winConditions[8][3] = {
 	{2, 4, 6}
 };
 
+const char rowValueChars[27] = {'0', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
+
 Board* createBoard() {
 	Board* board = malloc(sizeof(Board));
 	if (board == NULL) return NULL;
@@ -22,6 +25,7 @@ Board* createBoard() {
 	memset(board->cells, 0, sizeof(int) * 81);
 	memset(board->movesPlayed, 0, sizeof(int) * 81);
 	memset(board->legalMoves, 0, sizeof(int) * 9);
+	strcpy(board->upn,"0000000000000000000000000000X");
 	board->lastMovePlayed = 0;
 	board->turn = 0;
 	board->xToPlay = true;
@@ -83,10 +87,31 @@ int evaluateGrid(Board* board, int gridStartIndex) {
 				return board->cells[gridStartIndex + winConditions[i][0]];
 		}
 	}
+	return 0;
 }
 
 int evaluateBoard(Board* board) {
 	return 0;
+}
+
+char rowValue(Board* board, int grid, int row) {
+	int v = 0;
+	for (int i = 0; i < 3; i++) {
+		v += board->cells[grid * 9 + row * 3 + i] * pow(i, 3) + 1;
+	}
+	return rowValueChars[v];
+}
+
+char* positionString(Board* board) {
+	char* str = malloc(UPNLENGTH + 1);
+	for (int grid = 0; grid < 9; grid++) {
+		for (int row = 0; row < 3; row++) {
+			str[grid * 3 + row] = rowValue(board, grid, row);
+		}
+	}
+	str[27] = board->lastMovePlayed % 10 - 1;
+	str[28] = board->xToPlay ? 'X' : 'O';
+	return str;
 }
 
 void drawBoard(Board* board) {
