@@ -1,29 +1,94 @@
 #include "uttt.h"
+#include "scio.h"
+#include <ctype.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 int main() {
 	Board* board = createBoard();
 
-	do {
-		printf("turn %d ", board->turn);
+	while (1) {
+		char input[64];
 
-		if (board->isPlayerFree) printf("player free ");
-		else {
-			printf("legal moves: ");
-			int i = 0;
-			while (board->legalMoves[i] != 0 && i < 9) printf("%d ", board->legalMoves[i++]);
+		if (fgets(input, sizeof(input), stdin) == NULL) {
+			break;
 		}
 
-		char input[64];
-		fgets(input, 64, stdin);
-		int moveToPlay = parseMove(input);
-		printf("playing move %d\n", moveToPlay);
-		playMove(board, moveToPlay);
-		drawBoard(board);
-		strcpy(board->upn, positionString(board));
-		printf("%s\n", board->upn);
-	} while (1);
+		input[strcspn(input, "\n")] = '\0';
+
+		char* arg0 = strtok(input, " ");
+
+		if (!strcmp(input, "q")) {
+			break;
+		}
+		else if (!strcmp(arg0, "pos")) {
+			char str[64];
+			if (fgets(str, sizeof(str), stdin) == NULL) {
+				break;
+			}
+			str[strcspn(str, "\n")] = '\0';
+			switch (setPosition(board, str)) {
+				case -1:
+					printf("invalid string length\n");
+					break;
+				case 0:
+					printf("position set\n");
+					break;
+				case 1:
+					printf("invalid syntax\n");
+					break;
+			}
+		}
+		else if (!strcmp(input, "d")) {
+			drawBoard(board);
+		}
+		else if (!strcmp(input, "i") || !strcmp(input, "info")) {
+			printBotInfo();
+		}
+		else if (!strcmp(arg0, "e") || !strcmp(arg0, "eval")) {
+			int len = strlen(arg0);
+			char c1 = input[len + 1], c2 = input[len + 2];
+			if (!isdigit(c1) && !isdigit(c2)) continue;
+
+			int depth = (c1 - '0') * 10 + (c2 - '0');
+			printf("eval %d\n", bestValue(board, depth));
+		}
+		else if (!strcmp(arg0, "bm") || !strcmp(arg0, "bestmove")) {
+			int len = strlen(arg0);
+			char c1 = input[len + 1], c2 = input[len + 2];
+			if (!isdigit(c1) && !isdigit(c2)) continue;
+
+			int depth = (c1 - '0') * 10 + (c2 - '0');
+			printf("bestmove %d\n", bestMove(board, depth));
+		}
+		else if (!strcmp(arg0, "p") || !strcmp(arg0, "play")) {
+			int len = strlen(arg0);
+			char c1 = input[len + 1], c2 = input[len + 2];
+			if (!isdigit(c1) && !isdigit(c2)) continue;
+
+			int move = (c1 - '0') * 10 + (c2 - '0');
+			playMove(board, move);
+		}
+		else if (!strcmp(input, "upn")) {
+			sprintUPN(board, board->upn);
+			printf("%s\n", board->upn);
+		}
+		else if (!strcmp(input, "lm")) {
+			printLegalMoves(board);
+		}
+		else if (!strcmp(input, "r") || !strcmp(input, "reset")) {
+			resetBoard(board);
+		}
+		else if (!strcmp(input, "t") || !strcmp(input, "turn")) {
+			printf("%d\n", board->turn);
+		}
+		else {
+			printf("invalid command\n");
+		}
+	}
+
+	free(board);
 
 	return 0;
 }

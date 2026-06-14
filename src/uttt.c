@@ -22,34 +22,17 @@ Board* createBoard() {
 	Board* board = malloc(sizeof(Board));
 	if (board == NULL) return NULL;
 
-	memset(board->cells, 0, sizeof(int) * 81);
-	memset(board->movesPlayed, 0, sizeof(int) * 81);
-	memset(board->legalMoves, 0, sizeof(int) * 9);
-	strcpy(board->upn,"0000000000000000000000000000X");
-	board->lastMovePlayed = 0;
-	board->turn = 0;
+	memset(board, 0, sizeof(Board));
+	strcpy(board->upn,"MMMMMMMMMMMMMMMMMMMMMMMMMMM00X");
 	board->xToPlay = true;
-	board->isPlayerFree = true;
+
+	setLegalMoves(board);
 
 	return board;
 }
 
-void freeBoard(Board* board) {
-	if (board) free(board);
-}
-
-bool isPlayerFree(Board* board) {
-	if (board->turn == 0) return true;
-	int g = targetGridIndex(board->lastMovePlayed);
-	for (int i = 0; i < 9; i++) {
-		if (board->cells[g + i] == 0) return false;
-	}
-	return true;
-}
-
 bool isMoveLegal(Board* board, int move) {
-	if (board->isPlayerFree && board->cells[cellToIndex(move)] == 0) return true;
-	for (int i = 0; i < 9; i++) {
+	for (int i = 0; i < 81; i++) {
 		if (board->legalMoves[i] == 0) return false;
 		if (board->legalMoves[i] == move) return true;
 	}
@@ -79,83 +62,177 @@ int parseMove(char str[]) {
 	return n;
 }
 
-int evaluateGrid(Board* board, int gridStartIndex) {
-	for (int i = 0; i < 8; i++) {
-		if (board->cells[gridStartIndex + winConditions[i][0]] == 0) continue;
-		if (board->cells[gridStartIndex + winConditions[i][0]] == board->cells[gridStartIndex + winConditions[i][1]] &&
-			board->cells[gridStartIndex + winConditions[i][1]] == board->cells[gridStartIndex + winConditions[i][2]]) {
-				return board->cells[gridStartIndex + winConditions[i][0]];
+int gridValue(Board* board, int grid) {
+	int gridStartIndex = grid * 9;
+	int v = NONE;
+	int completed = 0;
+
+	for (int i = 0; i < 9; i++) {
+		if (board->cells[gridStartIndex + i] != 0) {
+			completed++;
 		}
 	}
-	return 0;
-}
 
-int evaluateBoard(Board* board) {
-	return 0;
-}
-
-char rowValue(Board* board, int grid, int row) {
-	int v = 0;
-	for (int i = 0; i < 3; i++) {
-		v += board->cells[grid * 9 + row * 3 + i] * pow(i, 3) + 1;
+	for (int i = 0; i < 8; i++) {
+		int a = board->cells[gridStartIndex + winConditions[i][0]];
+		if (a != NONE && a == board->cells[gridStartIndex + winConditions[i][1]] && a == board->cells[gridStartIndex + winConditions[i][2]]) {
+				v = a;
+				break;
+		}
 	}
-	return rowValueChars[v];
+	if (!v && completed == 9) v = DRAW;
+	return v;
 }
 
-char* positionString(Board* board) {
-	char* str = malloc(UPNLENGTH + 1);
+int gameState(Board* board) {
+	int v = NONE;
+	int gridValues[9] = {0};
+	int completed = 0;
+
+	for (int i = 0; i < 9; i++) {
+		int g = gridValue(board, i);
+		if (g != NONE) {
+			completed++;
+			gridValues[i] = g;
+		}
+	}
+
+	for (int i = 0; i < 8; i++) {
+		int a = gridValues[winConditions[i][0]];
+		if (a != NONE && a != DRAW && a == gridValues[winConditions[i][1]] && a == gridValues[winConditions[i][2]]) {
+				v = a;
+				break;
+		}
+	}
+	if (!v && completed == 9) v = DRAW;
+
+	return v;
+}
+
+void sprintUPN(Board* board, char* str) {
+	char upn[UPNLENGTH];
 	for (int grid = 0; grid < 9; grid++) {
 		for (int row = 0; row < 3; row++) {
-			str[grid * 3 + row] = rowValue(board, grid, row);
+			int v = 0;
+			for (int i = 0; i < 3; i++) {
+				v += (board->cells[grid * 9 + row * 3 + i] + 1) * pow(3, i);
+			}
+			upn[grid * 3 + row] = rowValueChars[v];
 		}
 	}
-	str[27] = board->lastMovePlayed % 10 - 1;
-	str[28] = board->xToPlay ? 'X' : 'O';
-	return str;
+	upn[27] = board->lastMovePlayed ? (char) (board->lastMovePlayed / 10) : '0';
+	upn[28] = board->lastMovePlayed ? (char) (board->lastMovePlayed % 10) : '0';
+	upn[29] = board->xToPlay ? 'X' : 'O';
+	sprintf(str, upn);
 }
 
 void drawBoard(Board* board) {
 	for (int i = 0; i < 3; i++) {
+		printf("---------------------------------------\n");
 		for (int j = 0; j < 3; j++) {
 			for (int k = 0; k < 3; k++) {
 				for (int cell = 0; cell < 3; cell++) {
 					int x = board->cells[i * 27 + k * 9 + j * 3 + cell];
-					printf(x == 1 ? "X" : x == -1 ? "O" : " ");
+					char c = x == 1 ? 'X' : x == -1 ? 'O' : ' ';
+					printf("| %c ", c);
+					if (cell == 2) putchar('|');
 				}
-				if (k != 2) printf("|");
 			}
-			printf("\n");
+			putchar('\n');
 		}
-		if (i != 2) printf("-----------\n");
 	}
+	printf("---------------------------------------\n");
 }
 
 void setLegalMoves(Board* board) {
-	if (board->isPlayerFree) return;
+	memset(board->legalMoves, 0, sizeof(board->legalMoves));
 
-	int i = 0;
-	while (board->legalMoves[i] != 0 && i < 9) board->legalMoves[i++] = 0;
-
-	int g = targetGridIndex(board->lastMovePlayed);
-	int k = 0;
-	for (i = 0; i < 9; i++) {
-		if (board->cells[g + i] == 0) {
-			board->legalMoves[k++] = indexToCell(g + i);
+	if (board->turn == 0 || gridValue(board, board->lastMovePlayed % 10 - 1)) {
+		//player free
+		int k = 0;
+		for (int i = 0; i < 81; i++) {
+			if (board->cells[i] == 0) {
+				board->legalMoves[k++] = indexToCell(i);
+			}
+		}
+	} else {
+		int g = targetGridIndex(board->lastMovePlayed);
+		int k = 0;
+		for (int i = 0; i < 9; i++) {
+			if (board->cells[g + i] == 0) {
+				board->legalMoves[k++] = indexToCell(g + i);
+			}
 		}
 	}
+}
+
+void printLegalMoves(Board* board) {
+	printf("legal moves: ");
+	int i = 0;
+	while (i < 81 && board->legalMoves[i] != 0) printf("%d ", board->legalMoves[i++]);
+	printf("\n");
 }
 
 void playMove(Board* board, int move) {
 	if (!isMoveLegal(board, move)) {
-		printf("illegal move\n");
+		printf("illegal\n");
 		return;
+	}
+
+	switch (gameState(board)) {
+		case NONE:
+			break;
+		case OWIN:
+			printf("gameover owin\n");
+			return;
+		case XWIN:
+			printf("gameover xwin\n");
+			return;
+		case DRAW:
+			printf("gameover draw\n");
+			return;
 	}
 
 	board->cells[cellToIndex(move)] = board->xToPlay ? 1 : -1;
 	board->movesPlayed[board->turn] = move;
 	board->lastMovePlayed = move;
-	board->turn++;
 	board->xToPlay = !board->xToPlay;
-	board->isPlayerFree = isPlayerFree(board);
+	board->turn++;
 	setLegalMoves(board);
+}
+
+void resetBoard(Board* board) {
+	memset(board, 0, sizeof(Board));
+	strcpy(board->upn,"MMMMMMMMMMMMMMMMMMMMMMMMMMM00X");
+	board->xToPlay = true;
+
+	setLegalMoves(board);
+}
+
+int setPosition(Board* board, char* pos) {
+	if (strlen(pos) != UPNLENGTH) return -1;
+
+	board->lastMovePlayed = (pos[27] - '0') * 10 + (pos[28] - '0');
+	if (pos[29] == 'X') {
+		board->xToPlay = true;
+	} else if (pos[29] == 'O') {
+		board->xToPlay = false;
+	} else {
+		return 1;
+	}
+
+	for (int i = 0; i < 27; i++) {
+		int v = 0;
+		for (int j = 0; j < 27; j++) {
+			if (rowValueChars[j] == pos[i]) v = j;
+		}
+
+		board->cells[i * 3] = v % 3 - 1;
+		board->cells[i * 3 + 1] = v / 3 % 3 - 1;
+		board->cells[i * 3 + 2] = v / 9 - 1;
+	}
+
+	setLegalMoves(board);
+
+	return 0;
 }
