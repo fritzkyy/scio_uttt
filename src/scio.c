@@ -8,17 +8,18 @@
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
 const int gridWeight = 5;
+const int gridPosBonus = 4;
 const int posBonus[] = {
 	3, 2, 3, 2, 4, 2, 3, 2, 3
 };
 
 void printBotInfo() {
 	printf("Scio bot by Fritzky\n");
-	printf("Version %d, 14/06/2026\n", VERSION);
+	printf("Version %d, 16/06/2026\n", VERSION);
 	printf("https://github.com/fritzkyy/scio_uttt\n\n");
 }
 
-int positionValue(Board* board) {
+float positionValue(Board* board) {
 	switch (gameState(board)) {
 		case NONE:
 			break;
@@ -30,21 +31,21 @@ int positionValue(Board* board) {
 			return 0;
 	}
 
-	int g = 0, c = 0;
-    for (int i = 0; i < 9; i++) {
-		int v = gridValue(board, i);
-		g += v * posBonus[i];
+	float g = 0, c = 0;
+    for (int grid = 0; grid < 9; grid++) {
+		int v = gridValue(board, grid);
+		g += v * posBonus[grid];
 
 		if (v != 0) continue;
-		for (int j = 0; j < 9; j++) {
-			c += board->cells[i * 9 + j] * posBonus[j];
+		for (int cell = 0; cell < 9; cell++) {
+			c += board->cells[cell * 9 + cell] * posBonus[cell] * posBonus[grid] / gridPosBonus;
 		}
 	}
 	return g * gridWeight + c;
 }
 
 int bestMove(Board* board, int depth) {
-    int bestValue = board->xToPlay ? -INF : INF;
+    float bestValue = board->xToPlay ? -INF : INF;
 
 	int lmoves[81];
 	memcpy(lmoves, board->legalMoves, sizeof(lmoves));
@@ -52,7 +53,7 @@ int bestMove(Board* board, int depth) {
 
     for (int i = 0; i < 81 && lmoves[i]; i++) {
         testMove(board, lmoves[i], true);
-        int moveValue = minimax(board, depth - 1);
+        float moveValue = minimax(board, depth - 1, -INF, INF);
         testMove(board, lmoves[i], false);
 
         if ((board->xToPlay && moveValue > bestValue) || (!board->xToPlay && moveValue < bestValue)) {
@@ -64,31 +65,50 @@ int bestMove(Board* board, int depth) {
     return moveToPlay;
 }
 
-int minimax(Board* board, int depth) {
+float minimax(Board* board, int depth, int alpha, int beta) {
     if (depth == 0 || gameState(board)) return positionValue(board);
 
-	int lmoves[81];
-	memcpy(lmoves, board->legalMoves, sizeof(lmoves));
-	int bestValue = board->xToPlay ? -INF : INF;
+    int lmoves[81];
+    memcpy(lmoves, board->legalMoves, sizeof(lmoves));
+	float bestValue = board->xToPlay ? -INF : INF;
 
-    for (int i = 0; i < 81 && lmoves[i]; i++) {
-        testMove(board, lmoves[i], true);
-        bestValue = board->xToPlay ? min(bestValue, minimax(board, depth - 1)) : max(bestValue, minimax(board, depth - 1));
-        testMove(board, lmoves[i], false);
+    if (board->xToPlay) {
+        for (int i = 0; i < 81 && lmoves[i]; i++) {
+            testMove(board, lmoves[i], true);
+            float value = minimax(board, depth - 1, alpha, beta);
+            testMove(board, lmoves[i], false);
+
+            bestValue = max(bestValue, value);
+            alpha = max(alpha, bestValue);
+
+            if (beta <= alpha) break;
+        }
+        return bestValue;
     }
+    else {
+        for (int i = 0; i < 81 && lmoves[i]; i++) {
+            testMove(board, lmoves[i], true);
+            float value = minimax(board, depth - 1, alpha, beta);
+            testMove(board, lmoves[i], false);
 
-    return bestValue;
+            bestValue = min(bestValue, value);
+            beta = min(beta, bestValue);
+
+            if (beta <= alpha) break;
+        }
+        return bestValue;
+    }
 }
 
-int bestValue(Board* board, int depth) {
-    int bestValue = board->xToPlay ? -INF : INF;
+float bestValue(Board* board, int depth) {
+    float bestValue = board->xToPlay ? -INF : INF;
 
 	int lmoves[81];
 	memcpy(lmoves, board->legalMoves, sizeof(lmoves));
 
     for (int i = 0; i < 81 && lmoves[i]; i++) {
         testMove(board, lmoves[i], true);
-        int moveValue = minimax(board, depth - 1);
+        float moveValue = minimax(board, depth - 1, -INF, INF);
         testMove(board, lmoves[i], false);
 
         if ((board->xToPlay && moveValue > bestValue) || (!board->xToPlay && moveValue < bestValue)) {
@@ -100,15 +120,8 @@ int bestValue(Board* board, int depth) {
 }
 
 void testMove(Board* board, int move, bool make) {
-	if (make) {
-		board->cells[cellToIndex(move)] = board->xToPlay ? 1 : -1;
-		board->lastMovePlayed = move;
-		board->xToPlay = !board->xToPlay;
-		setLegalMoves(board);
-	} else {
-		board->cells[cellToIndex(move)] = 0;
-		board->lastMovePlayed = board->movesPlayed[board->turn];
-		board->xToPlay = !board->xToPlay;
-		setLegalMoves(board);
-	}
+	board->cells[cellToIndex(move)] = make ? (board->xToPlay ? 1 : -1) : 0;
+	board->lastMovePlayed = make ? move : board->movesPlayed[board->turn - 1];
+	board->xToPlay = !board->xToPlay;
+	setLegalMoves(board);
 }

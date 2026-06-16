@@ -5,9 +5,9 @@
 
 void printBotInfo();
 
-int positionValue(Board* board);
+float positionValue(Board* board);
 int bestMove(Board* board, int depth);
-int minimax(Board* board, int depth);
-int bestValue(Board* board, int depth);
+float minimax(Board* board, int depth, int alpha, int beta);
+float bestValue(Board* board, int depth);
 
 void testMove(Board* board, int move, bool make);

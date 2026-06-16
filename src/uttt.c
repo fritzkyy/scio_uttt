@@ -81,6 +81,7 @@ int gridValue(Board* board, int grid) {
 		}
 	}
 	if (!v && completed == 9) v = DRAW;
+	//printf("grid %d val %d\n", grid, v);
 	return v;
 }
 
@@ -183,13 +184,28 @@ void playMove(Board* board, int move) {
 		case NONE:
 			break;
 		case OWIN:
-			printf("gameover owin\n");
+			printf("gameover\n");
+			printf("owin\n");
+			printf("moves played\n");
+			for (int i = 0; i < 81 && board->movesPlayed[i] != 0; i++) {
+				printf("%d\n", board->movesPlayed[i]);
+			}
 			return;
 		case XWIN:
-			printf("gameover xwin\n");
+			printf("gameover\n");
+			printf("xwin\n");
+			printf("moves played\n");
+			for (int i = 0; i < 81 && board->movesPlayed[i] != 0; i++) {
+				printf("%d\n", board->movesPlayed[i]);
+			}
 			return;
 		case DRAW:
-			printf("gameover draw\n");
+			printf("gameover\n");
+			printf("draw\n");
+			printf("moves played\n");
+			for (int i = 0; i < 81 && board->movesPlayed[i] != 0; i++) {
+				printf("%d\n", board->movesPlayed[i]);
+			}
 			return;
 	}
 

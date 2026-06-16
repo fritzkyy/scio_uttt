@@ -1,3 +1,4 @@
+#define DEBUG
 #include "uttt.h"
 #include "scio.h"
 #include <ctype.h>
@@ -52,7 +53,7 @@ int main() {
 			if (!isdigit(c1) && !isdigit(c2)) continue;
 
 			int depth = (c1 - '0') * 10 + (c2 - '0');
-			printf("eval %d\n", bestValue(board, depth));
+			printf("eval %.2f\n", bestValue(board, depth));
 		}
 		else if (!strcmp(arg0, "bm") || !strcmp(arg0, "bestmove")) {
 			int len = strlen(arg0);
@@ -69,6 +70,20 @@ int main() {
 
 			int move = (c1 - '0') * 10 + (c2 - '0');
 			playMove(board, move);
+		}
+		else if (!strcmp(arg0, "pb") || !strcmp(arg0, "playbest")) {
+			int len = strlen(arg0);
+			char c1 = input[len + 1], c2 = input[len + 2];
+			if (!isdigit(c1) && !isdigit(c2)) continue;
+
+			int depth = (c1 - '0') * 10 + (c2 - '0');
+			int move = bestMove(board, depth);
+			playMove(board, move);
+			printf("played %d\n", move);
+			#ifdef DEBUG
+				drawBoard(board);
+				printf("eval %d\n", bestValue(board, depth));
+			#endif
 		}
 		else if (!strcmp(input, "upn")) {
 			sprintUPN(board, board->upn);
