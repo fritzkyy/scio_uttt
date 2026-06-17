@@ -12,10 +12,14 @@ The program consists of a command-line interface that accepts one of the followi
   * Prints information about the bot.  
 * `e` or `eval`
   * Returns the evaluation of the position after given depth (depth must be inputed with 2 digits).  
-* `bm` or `bestmove`
+* * `bm` or `bestmove`
+  * Returns the best move after given depth (depth must be inputed with 2 digits).
   * Returns the best move after given depth (depth must be inputed with 2 digits).    
 * `p` or `play`
   * Plays the indicated move.  
+* `pb` or `playbest`
+  * Finds and plays the best move after given depth (depth must be inputed with 2 digits).  
+  Merely combines the commands `bm depth` and `p move`.  
 * `upn`
   * Returns the [UPN](#UPN) notation of the current position.  
 * `lm`
@@ -23,7 +27,7 @@ The program consists of a command-line interface that accepts one of the followi
 * `r` or `reset`
   * Resets the board to its initial state.  
 * `t` or `turn`
-  * Returns the current turn (0 - 80).  
+  * Returns the current turn (0 - 80) and the player currently in turn (X or O).  
 * `q`
   * Exits the program.
 

@@ -1,5 +1,4 @@
 #include "uttt.h"
-#include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -114,17 +113,14 @@ void sprintUPN(Board* board, char* str) {
 	char upn[UPNLENGTH];
 	for (int grid = 0; grid < 9; grid++) {
 		for (int row = 0; row < 3; row++) {
-			int v = 0;
-			for (int i = 0; i < 3; i++) {
-				v += (board->cells[grid * 9 + row * 3 + i] + 1) * pow(3, i);
-			}
+			int v = (board->cells[grid * 9 + row * 3] + 1) + (board->cells[grid * 9 + row * 3 + 1] + 1) * 3 + (board->cells[grid * 9 + row * 3 + 2] + 1) * 9;
 			upn[grid * 3 + row] = rowValueChars[v];
 		}
 	}
 	upn[27] = board->lastMovePlayed ? (char) (board->lastMovePlayed / 10) : '0';
 	upn[28] = board->lastMovePlayed ? (char) (board->lastMovePlayed % 10) : '0';
 	upn[29] = board->xToPlay ? 'X' : 'O';
-	sprintf(str, upn);
+	strcpy(str, upn);
 }
 
 void drawBoard(Board* board) {

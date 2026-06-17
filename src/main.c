@@ -96,7 +96,7 @@ int main() {
 			resetBoard(board);
 		}
 		else if (!strcmp(input, "t") || !strcmp(input, "turn")) {
-			printf("%d\n", board->turn);
+			printf("%d %c to play\n", board->turn, board->xToPlay ? 'X' : 'O');
 		}
 		else {
 			printf("invalid command\n");

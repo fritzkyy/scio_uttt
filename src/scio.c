@@ -2,12 +2,16 @@
 #include "scio.h"
 #include <stdio.h>
 #include <string.h>
+#define DEBUG
+#ifdef DEBUG
+	#include <time.h>
+#endif
 
 #define INF 2147483646
 #define max(a, b) ((a) > (b) ? (a) : (b))
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
-const int gridWeight = 5;
+const int gridWeight = 9;
 const int gridPosBonus = 4;
 const int posBonus[] = {
 	3, 2, 3, 2, 4, 2, 3, 2, 3
@@ -47,6 +51,12 @@ float positionValue(Board* board) {
 int bestMove(Board* board, int depth) {
     float bestValue = board->xToPlay ? -INF : INF;
 
+	#ifdef DEBUG
+		clock_t start, end;
+		double time;
+		start = clock();
+	#endif
+
 	int lmoves[81];
 	memcpy(lmoves, board->legalMoves, sizeof(lmoves));
     int moveToPlay = lmoves[0];
@@ -61,6 +71,12 @@ int bestMove(Board* board, int depth) {
             moveToPlay = lmoves[i];
         }
     }
+
+	#ifdef DEBUG
+		end = clock();
+		time = ((double) (end - start)) / CLOCKS_PER_SEC;
+		printf("time %f s\n", time);
+	#endif
 
     return moveToPlay;
 }
@@ -103,6 +119,12 @@ float minimax(Board* board, int depth, int alpha, int beta) {
 float bestValue(Board* board, int depth) {
     float bestValue = board->xToPlay ? -INF : INF;
 
+	#ifdef DEBUG
+		clock_t start, end;
+		double time;
+		start = clock();
+	#endif
+
 	int lmoves[81];
 	memcpy(lmoves, board->legalMoves, sizeof(lmoves));
 
@@ -115,6 +137,12 @@ float bestValue(Board* board, int depth) {
             bestValue = moveValue;
         }
     }
+
+	#ifdef DEBUG
+		end = clock();
+		time = ((double) (end - start)) / CLOCKS_PER_SEC;
+		printf("time %f s\n", time);
+	#endif
 
     return bestValue;
 }
