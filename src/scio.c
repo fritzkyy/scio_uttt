@@ -42,7 +42,7 @@ float positionValue(Board* board) {
 
 		if (v != 0) continue;
 		for (int cell = 0; cell < 9; cell++) {
-			c += board->cells[cell * 9 + cell] * posBonus[cell] * posBonus[grid] / gridPosBonus;
+			c += board->cells[grid * 9 + cell] * posBonus[cell] * posBonus[grid] / gridPosBonus;
 		}
 	}
 	return g * gridWeight + c;

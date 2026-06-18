@@ -5,21 +5,28 @@ To install, run the `Makefile` or the command `gcc src/main.c src/uttt.c src/sci
 
 The program consists of a command-line interface that accepts one of the following commands:
 * `pos`
-  * Accepts a [UPN string](#UPN) (after a newline) and sets the board position to the input. Starting position is set by default.  
+  * Sets the board position to the given [UPN string](#UPN). Starting position is set by default.  
 * `d`
   * Prints a representation of the current board state to the console.  
+* `rs`
+  * Resets settings to default.  
+* `depth`
+  * Sets the engine's default search depth to the given input (depth must be inputed with 2 digits).  
+* `log`
+  * Enables or disables (respectively with `log 1` and `log 0`) the engine writing the search log `log.txt`.  
 * `i` or `info`
-  * Prints information about the bot.  
+  * Prints information about the engine.  
 * `e` or `eval`
   * Returns the evaluation of the position after given depth (depth must be inputed with 2 digits).  
-* * `bm` or `bestmove`
-  * Returns the best move after given depth (depth must be inputed with 2 digits).
-  * Returns the best move after given depth (depth must be inputed with 2 digits).    
+* `bm` or `bestmove`
+  * Returns the best move after given depth (depth must be inputed with 2 digits).   
 * `p` or `play`
   * Plays the indicated move.  
 * `pb` or `playbest`
   * Finds and plays the best move after given depth (depth must be inputed with 2 digits).  
   Merely combines the commands `bm depth` and `p move`.  
+* `nbg` or `newbotgame`
+  * Starts a game against the engine (`nbg X` or `nbg O` to make the engine play respectively as X or O).  
 * `upn`
   * Returns the [UPN](#UPN) notation of the current position.  
 * `lm`
@@ -27,7 +34,7 @@ The program consists of a command-line interface that accepts one of the followi
 * `r` or `reset`
   * Resets the board to its initial state.  
 * `t` or `turn`
-  * Returns the current turn (0 - 80) and the player currently in turn (X or O).  
+  * Returns the current turn (1 - 81) and the player currently in turn (X or O).  
 * `q`
   * Exits the program.
 

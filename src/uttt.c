@@ -170,39 +170,34 @@ void printLegalMoves(Board* board) {
 	printf("\n");
 }
 
-void playMove(Board* board, int move) {
-	if (!isMoveLegal(board, move)) {
+int playMove(Board* board, int move) {
+	if (!isMoveLegal(board, move) || board->isGameOver) {
 		printf("illegal\n");
-		return;
+		return -2;
 	}
 
 	switch (gameState(board)) {
-		case NONE:
-			break;
 		case OWIN:
-			printf("gameover\n");
-			printf("owin\n");
-			printf("moves played\n");
+			board->isGameOver = true;
+			printf("gameover\nowin\nmoves played\n");
 			for (int i = 0; i < 81 && board->movesPlayed[i] != 0; i++) {
 				printf("%d\n", board->movesPlayed[i]);
 			}
-			return;
+			break;
 		case XWIN:
-			printf("gameover\n");
-			printf("xwin\n");
-			printf("moves played\n");
+			board->isGameOver = true;
+			printf("gameover\nxwin\nmoves played\n");
 			for (int i = 0; i < 81 && board->movesPlayed[i] != 0; i++) {
 				printf("%d\n", board->movesPlayed[i]);
 			}
-			return;
+			break;
 		case DRAW:
-			printf("gameover\n");
-			printf("draw\n");
-			printf("moves played\n");
+			board->isGameOver = true;
+			printf("gameover\ndraw\nmoves played\n");
 			for (int i = 0; i < 81 && board->movesPlayed[i] != 0; i++) {
 				printf("%d\n", board->movesPlayed[i]);
 			}
-			return;
+			break;
 	}
 
 	board->cells[cellToIndex(move)] = board->xToPlay ? 1 : -1;
@@ -211,6 +206,8 @@ void playMove(Board* board, int move) {
 	board->xToPlay = !board->xToPlay;
 	board->turn++;
 	setLegalMoves(board);
+
+	return 0;
 }
 
 void resetBoard(Board* board) {

@@ -25,7 +25,7 @@ typedef struct {
 	int lastMovePlayed;
 	int turn;
 	char upn[UPNLENGTH];
-	bool xToPlay;
+	bool xToPlay, isGameOver;
 } Board;
 
 Board* createBoard();
@@ -43,6 +43,6 @@ void sprintUPN(Board* board, char* str);
 void drawBoard(Board* board);
 void setLegalMoves(Board* board);
 void printLegalMoves(Board* board);
-void playMove(Board* board, int move);
+int playMove(Board* board, int move);
 void resetBoard(Board* board);
 int setPosition(Board* board, char* pos);
